@@ -19,13 +19,14 @@ def getObjPnts(tag_id):
     else:
         return None
 
-pose_pub = rospy.Publisher('tf_out', geometry_msgs.msg.PoseStamped)
+pose_pub = rospy.Publisher('/pose_out', geometry_msgs.msg.PoseStamped)
 rmat4 = np.identity(4)
 def publishTransform(rmat, tvec):
     rmat4[:3, :3] = rmat
     quaternion = tf.transformations.quaternion_from_matrix(rmat4)
     pose = geometry_msgs.msg.PoseStamped()
-    pose.header.frame_id = 'world'
+    pose.header.frame_id = 'map'
+    pose.header.stamp = rospy.Time.now()
     pose.pose.position = geometry_msgs.msg.Point(*tvec)
     pose.pose.orientation = geometry_msgs.msg.Quaternion(*quaternion)
     pose_pub.publish(pose)
@@ -70,11 +71,11 @@ def callback(data):
         #print(imgPnts)
         if objPnts.shape[0]>0:
             retv, rvec, tvec = cv2.solvePnP( objPnts, imgPnts, cameraMatrix, distCoeffs )
-            print(rvec)
+            #print(rvec)
             print(tvec)
             rmat, _ = cv2.Rodrigues(rvec)
             print(rmat)
-            publishTransform(np.linalg.inv(rmat), -tvec)
+            publishTransform(rmat.T, np.matmul(rmat.T, -tvec))
     image_pub.publish(bridge.cv2_to_imgmsg(img, 'bgr8'))
 image_sub = rospy.Subscriber("/usb_cam/image_raw", sensor_msgs.msg.Image, callback)
 
