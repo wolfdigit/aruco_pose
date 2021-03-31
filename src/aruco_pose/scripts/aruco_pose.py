@@ -3,6 +3,7 @@
 import rospy
 import sensor_msgs
 import geometry_msgs
+import visualization_msgs.msg
 from cv_bridge import CvBridge, CvBridgeError
 import tf
 import cv2
@@ -13,19 +14,44 @@ rospy.init_node('aruco_pose', anonymous=True)
 
 tag_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
 
+marker_dict = {}
+def fetchMarker(markerArr):
+    for marker in markerArr.markers:
+        #print(marker)
+        q = marker.pose.orientation
+        rtmat = tf.transformations.quaternion_matrix([q.x, q.y, q.z, q.w])
+        #print(rtmat)
+        p = marker.pose.position
+        rtmat[0:3,3:4] = np.array([[p.x], [p.y], [p.z]])
+        #print(rtmat)
+        sqr = np.array([[0,0,0,1], [1,0,0,1], [1,1,0,1], [0,1,0,1]]).T
+        s = marker.scale
+        sqr = np.matmul(np.array([[s.x,0,0,0], [0,s.y,0,0], [0,0,s.z,0], [0,0,0,1]]), sqr)
+        #print(sqr)
+        pnts = np.matmul(rtmat, sqr)
+        #print(pnts)
+        marker_dict[marker.id] = pnts[0:3,:].T
+marker_sub = rospy.Subscriber("marker_ideal", visualization_msgs.msg.MarkerArray, fetchMarker)
+
 def getObjPnts(tag_id):
-    if tag_id==0:
-        return np.array([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]])
+    tag_id = int(tag_id)
+    #print(marker_dict)
+    if tag_id in marker_dict:
+        return marker_dict[tag_id]
     else:
         return None
+    #if tag_id==0:
+    #    return np.array([[0, 0, 0], [0.031, 0, 0], [0.031, 0.031, 0], [0, 0.031, 0]])
+    #else:
+    #    return None
 
-pose_pub = rospy.Publisher('/pose_out', geometry_msgs.msg.PoseStamped)
+pose_pub = rospy.Publisher('camera_pose', geometry_msgs.msg.PoseStamped)
 rmat4 = np.identity(4)
 def publishTransform(rmat, tvec):
     rmat4[:3, :3] = rmat
     quaternion = tf.transformations.quaternion_from_matrix(rmat4)
     pose = geometry_msgs.msg.PoseStamped()
-    pose.header.frame_id = 'map'
+    pose.header.frame_id = '/map'
     pose.header.stamp = rospy.Time.now()
     pose.pose.position = geometry_msgs.msg.Point(*tvec)
     pose.pose.orientation = geometry_msgs.msg.Quaternion(*quaternion)
