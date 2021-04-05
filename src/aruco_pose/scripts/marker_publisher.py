@@ -31,14 +31,14 @@ def buildMarker(id, x, y, z, yaw, pitch, roll):
     marker.color.r = 1.0
     marker.color.g = 1.0
     marker.color.b = 0.0
-    q = tf.transformations.quaternion_from_euler(yaw/180.0*math.pi, pitch/180.0*math.pi, roll/180.0*math.pi, 'rzyz')
+    q = tf.transformations.quaternion_from_euler(yaw/180.0*math.pi, (-pitch-90)/180.0*math.pi, (-roll)/180.0*math.pi, 'rzxz')
     marker.pose.orientation = geometry_msgs.msg.Quaternion(*q)
     marker.pose.position = geometry_msgs.msg.Point(x, y, z)
     return marker
 
 markerArr = visualization_msgs.msg.MarkerArray()
 markers = []
-markers.append(buildMarker(0, 0, 0, 0, 0, 90, 0))
+markers.append(buildMarker(0, 0, 0, 0, 0, 0, 0))
 markerArr.markers = markers
 
 markerArr_pub = rospy.Publisher('marker_ideal', visualization_msgs.msg.MarkerArray)
