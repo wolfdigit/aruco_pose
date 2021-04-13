@@ -12,7 +12,7 @@ import numpy as np
 
 rospy.init_node('aruco_pose', anonymous=True)
 
-tag_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
+tag_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_100)
 
 marker_dict = {}
 marker_shape = {}
@@ -26,6 +26,8 @@ def fetchMarker(markerArr):
         #print(sqr)
         marker_shape[marker.id] = sqr[0:3, :].T
         marker_scale[marker.id] = marker.scale
+        if marker.action!=marker.ADD:
+            continue
         q = marker.pose.orientation
         rtmat = tf.transformations.quaternion_matrix([q.x, q.y, q.z, q.w])
         #print(rtmat)
@@ -122,14 +124,14 @@ def callback(data):
             if newPnts is not None:
                 objPnts = np.concatenate((objPnts, newPnts))
                 imgPnts = np.concatenate((imgPnts, subcorners[i][0, :, :]))
-        print(objPnts)
-        print(imgPnts)
+        #print(objPnts)
+        #print(imgPnts)
         if objPnts.shape[0]>0:
             retv, rvec, tvec = cv2.solvePnP( objPnts, imgPnts, cameraMatrix, distCoeffs )
             #print(rvec)
-            print(tvec)
+            #print(tvec)
             rmat, _ = cv2.Rodrigues(rvec)
-            print(rmat)
+            #print(rmat)
             mat4_cw[0:3, 0:3] = rmat.T
             mat4_cw[0:3, 3:4] = np.matmul(rmat.T, -tvec)
             publishTransform(mat4_cw)
@@ -141,8 +143,8 @@ def callback(data):
                 if objPnts is None:
                     continue
                 imgPnts = subcorners[i][0, :, :]
-                print(objPnts)
-                print(imgPnts)
+                #print(objPnts)
+                #print(imgPnts)
                 retv, rvec2, tvec2 = cv2.solvePnP( objPnts, imgPnts, cameraMatrix, distCoeffs )
                 rmat2, _ = cv2.Rodrigues(rvec2)
                 mat4_tc[0:3, 0:3] = rmat2

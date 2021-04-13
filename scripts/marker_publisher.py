@@ -17,15 +17,15 @@ def getObjPnts(tag_id):
         return None
 
 # yaw & pitch: world; roll: rotated (nose pointing)
-def buildMarker(id, x, y, z, yaw, pitch, roll):
+def buildMarker(id, x, y, z, yaw, pitch, roll, newcome=False):
     marker = visualization_msgs.msg.Marker()
     marker.header.frame_id = '/map'
     marker.ns = 'aruco'
     marker.id = id
     marker.type = marker.CUBE
-    marker.action = marker.ADD
-    marker.scale.x = 0.031
-    marker.scale.y = 0.031
+    marker.action = marker.DELETE if newcome else marker.ADD
+    marker.scale.x = 0.06
+    marker.scale.y = 0.06
     marker.scale.z = 0.01
     marker.color.a = 1.0
     marker.color.r = 1.0
@@ -38,7 +38,18 @@ def buildMarker(id, x, y, z, yaw, pitch, roll):
 
 markerArr = visualization_msgs.msg.MarkerArray()
 markers = []
-markers.append(buildMarker(0, 0, 0, 0, 0, 0, 0))
+#markers.append(buildMarker(0, 0, 0, 0, 0, 0, 0))
+#markers.append(buildMarker(40, 0, 0, 0, 0, 0, 0, True))
+#markers.append(buildMarker(0, 0.00, 0.00, 0.00, -1.14, -1.79, 1.66))
+#markers.append(buildMarker(40, 0.33, 0.05, -0.01, -1.44, -1.74, 1.53))
+markers.append(buildMarker(24, 0, 0, 0, 0, 0, 0))
+markers.append(buildMarker(53, 0, 0, 0, 0, 0, 0, True))
+markers.append(buildMarker(29, 0, 0, 0, 0, 0, 0, True))
+markers.append(buildMarker(71, 0, 0, 0, 0, 0, 0, True))
+markers.append(buildMarker(52, 0, 0, 0, 0, 0, 0, True))
+markers.append(buildMarker(70, 0, 0, 0, 0, 0, 0, True))
+markers.append(buildMarker(27, 0, 0, 0, 0, 0, 0, True))
+
 markerArr.markers = markers
 
 markerArr_pub = rospy.Publisher('marker_ideal', visualization_msgs.msg.MarkerArray)
