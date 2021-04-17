@@ -9,6 +9,7 @@ import tf
 import cv2
 import cv2.aruco
 import numpy as np
+import math
 
 rospy.init_node('aruco_pose', anonymous=True)
 
@@ -20,7 +21,7 @@ marker_scale = {}
 def fetchMarker(markerArr):
     for marker in markerArr.markers:
         #print(marker)
-        sqr = np.array([[0,0,0,1], [1,0,0,1], [1,1,0,1], [0,1,0,1]]).T
+        sqr = np.array([[0,0,0,1], [1,0,0,1], [1,-1,0,1], [0,-1,0,1]]).T
         s = marker.scale
         sqr = np.matmul(np.array([[s.x,0,0,0], [0,s.y,0,0], [0,0,s.z,0], [0,0,0,1]]), sqr)
         #print(sqr)
@@ -136,7 +137,7 @@ def callback(data):
             mat4_cw[0:3, 3:4] = np.matmul(rmat.T, -tvec)
             publishTransform(mat4_cw)
             
-            tagOutFile = open('/tmp/tag.txt', 'w')
+            tagOutFile = open('/tmp/marker_seen.txt', 'w')
             markers_out = []
             tagOutFile.write("({}, {}, {}, {}, {}, {}, {})\n".format('id', 'x', 'y', 'z', 'yaw', 'pitch', 'roll'))
             for i in range(len(tag_ids)):
@@ -155,8 +156,8 @@ def callback(data):
                 markers_out.append(mrk)
                 q = mrk.pose.orientation
                 p = mrk.pose.position
-                euler = tf.transformations.euler_from_quaternion((q.x, q.y, q.z, q.w), axes='rzyz')
-                tagOutFile.write("({}, {}, {}, {}, {}, {}, {})\n".format(mrk.id, p.x, p.y, p.z, euler[0], euler[1], euler[2]))
+                euler = tf.transformations.euler_from_quaternion((q.x, q.y, q.z, q.w), axes='rzxz')
+                tagOutFile.write("({}, {:.3f}, {:.3f}, {:.3f}, {:.3f}, {:.3f}, {:.3f})\n".format(mrk.id, p.x, p.y, p.z, euler[0]/math.pi*180.0, euler[1]/math.pi*180.0, euler[2]/math.pi*180.0))
             tagOutFile.close()
             markerArr = visualization_msgs.msg.MarkerArray()
             markerArr.markers = markers_out
