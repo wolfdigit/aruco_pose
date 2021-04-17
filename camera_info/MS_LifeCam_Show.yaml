@@ -1,0 +1,26 @@
+image_width: 640
+image_height: 480
+camera_name: MS_LifeCam_Show
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [ 774.47234,    0.     ,  333.97516,
+            0.     ,  781.06072,  317.9644 ,
+            0.     ,    0.     ,    1.     ]
+camera_model: plumb_bob
+distortion_coefficients:
+  rows: 1
+  cols: 5
+  data: [0.178728, -0.111827, 0.042205, 0.008757, 0.000000]
+rectification_matrix:
+  rows: 3
+  cols: 3
+  data: [ 1.,  0.,  0.,
+          0.,  1.,  0.,
+          0.,  0.,  1.]
+projection_matrix:
+  rows: 3
+  cols: 4
+  data: [ 809.63928,    0.     ,  336.70798,    0.     ,
+            0.     ,  795.12909,  328.6448 ,    0.     ,
+            0.     ,    0.     ,    1.     ,    0.     ]
