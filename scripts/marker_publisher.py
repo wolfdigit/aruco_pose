@@ -3,18 +3,10 @@
 import rospy
 import geometry_msgs.msg
 import visualization_msgs.msg
-#from visualization_msgs.msg
 import tf
-#import numpy as np
 import math
 
 rospy.init_node('aruco_pose_marker_pub', anonymous=True)
-
-def getObjPnts(tag_id):
-    if tag_id==0:
-        return np.array([[0, 0, 0], [1, 0, 0], [1, -1, 0], [0, -1, 0]])
-    else:
-        return None
 
 # yaw & pitch: world; roll: rotated (nose pointing)
 def buildMarker(id, x, y, z, yaw, pitch, roll, newcome=False):
@@ -36,29 +28,28 @@ def buildMarker(id, x, y, z, yaw, pitch, roll, newcome=False):
     marker.pose.position = geometry_msgs.msg.Point(x, y, z)
     return marker
 
-markerArr = visualization_msgs.msg.MarkerArray()
-markers = []
-#markers.append(buildMarker(0, 0, 0, 0, 0, 0, 0))
-#markers.append(buildMarker(40, 0, 0, 0, 0, 0, 0, True))
-#markers.append(buildMarker(0, 0.00, 0.00, 0.00, -1.14, -1.79, 1.66))
-#markers.append(buildMarker(40, 0.33, 0.05, -0.01, -1.44, -1.74, 1.53))
-markers.append(buildMarker(0, 0, 0, 0, 0, 0, 0))
-markers.append(buildMarker(1, 0, 0, 0, 0, 0, 0, True))
-markers.append(buildMarker(2, 0, 0, 0, 0, 0, 0, True))
-markers.append(buildMarker(3, 0, 0, 0, 0, 0, 0, True))
-markers.append(buildMarker(4, 0, 0, 0, 0, 0, 0, True))
-markers.append(buildMarker(5, 0, 0, 0, 0, 0, 0, True))
-markers.append(buildMarker(6, 0, 0, 0, 0, 0, 0, True))
-markers.append(buildMarker(7, 0, 0, 0, 0, 0, 0, True))
-markers.append(buildMarker(8, 0, 0, 0, 0, 0, 0, True))
-markers.append(buildMarker(9, 0, 0, 0, 0, 0, 0, True))
-markers.append(buildMarker(10, 0, 0, 0, 0, 0, 0, True))
-markers.append(buildMarker(11, 0, 0, 0, 0, 0, 0, True))
-
-markerArr.markers = markers
+def loadMarkers(filename):
+    markers = []
+    marker_ids = []
+    file = open(filename, 'r')
+    for line in file.readlines():
+        tok = line.split(',')
+        if not tok[0].isdigit():
+            continue
+        if len(tok)!=7:
+            print("ERROR: marker csv length should equal 7!")
+        markers.append(buildMarker( int(tok[0]), float(tok[1]), float(tok[2]), float(tok[3]), float(tok[4]), float(tok[5]), float(tok[6]) ))
+        marker_ids.append(int(tok[0]))
+    file.close()
+    for i in range(0, 100):
+        if not i in marker_ids:
+            markers.append(buildMarker(i, 0, 0, 0, 0, 0, 0, True))
+    markerArr = visualization_msgs.msg.MarkerArray()
+    markerArr.markers = markers
+    return markerArr
 
 markerArr_pub = rospy.Publisher('marker_ideal', visualization_msgs.msg.MarkerArray)
 rate = rospy.Rate(3)
 while not rospy.is_shutdown():
-    markerArr_pub.publish(markerArr)
+    markerArr_pub.publish(loadMarkers(rospy.get_param("~marker_known")))
     rate.sleep()

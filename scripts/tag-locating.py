@@ -19,6 +19,9 @@ marker_dict = {}
 marker_shape = {}
 marker_scale = {}
 def fetchMarker(markerArr):
+    marker_dict.clear()
+    marker_shape.clear()
+    marker_scale.clear()
     for marker in markerArr.markers:
         #print(marker)
         sqr = np.array([[0,0,0,1], [1,0,0,1], [1,-1,0,1], [0,-1,0,1]]).T
@@ -92,7 +95,10 @@ image_pub = rospy.Publisher('image_out', sensor_msgs.msg.Image)
 markerArr_pub = rospy.Publisher('marker_seen', visualization_msgs.msg.MarkerArray)
 bridge = CvBridge()
 subPixCriteria = criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.1)
+rvec = None
+tvec = None
 def callback(data):
+    global rvec, tvec
     if cameraMatrix is None:
         return
     img = bridge.imgmsg_to_cv2(data, 'bgr8')
@@ -128,6 +134,10 @@ def callback(data):
         #print(objPnts)
         #print(imgPnts)
         if objPnts.shape[0]>0:
+            #if rvec is None or tvec is None:
+            #    retv, rvec, tvec = cv2.solvePnP( objPnts, imgPnts, cameraMatrix, distCoeffs, rvec, tvec, False )
+            #else:
+            #    retv, rvec, tvec = cv2.solvePnP( objPnts, imgPnts, cameraMatrix, distCoeffs, rvec, tvec, True )
             retv, rvec, tvec = cv2.solvePnP( objPnts, imgPnts, cameraMatrix, distCoeffs )
             #print(rvec)
             #print(tvec)
@@ -139,7 +149,7 @@ def callback(data):
             
             tagOutFile = open('/tmp/marker_seen.txt', 'w')
             markers_out = []
-            tagOutFile.write("({}, {}, {}, {}, {}, {}, {})\n".format('id', 'x', 'y', 'z', 'yaw', 'pitch', 'roll'))
+            tagOutFile.write("{}, {}, {}, {}, {}, {}, {}\n".format('id', 'x', 'y', 'z', 'yaw', 'pitch', 'roll'))
             for i in range(len(tag_ids)):
                 objPnts = getObjShape(tag_ids[i])
                 if objPnts is None:
@@ -157,7 +167,7 @@ def callback(data):
                 q = mrk.pose.orientation
                 p = mrk.pose.position
                 euler = tf.transformations.euler_from_quaternion((q.x, q.y, q.z, q.w), axes='rzxz')
-                tagOutFile.write("({}, {:.3f}, {:.3f}, {:.3f}, {:.3f}, {:.3f}, {:.3f})\n".format(mrk.id, p.x, p.y, p.z, euler[0]/math.pi*180.0, euler[1]/math.pi*180.0, euler[2]/math.pi*180.0))
+                tagOutFile.write("{}, {:.3f}, {:.3f}, {:.3f}, {:.3f}, {:.3f}, {:.3f}\n".format(mrk.id, p.x, p.y, p.z, euler[0]/math.pi*180.0, euler[1]/math.pi*180.0, euler[2]/math.pi*180.0))
             tagOutFile.close()
             markerArr = visualization_msgs.msg.MarkerArray()
             markerArr.markers = markers_out
