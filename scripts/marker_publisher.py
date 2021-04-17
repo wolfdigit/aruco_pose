@@ -24,8 +24,8 @@ def buildMarker(id, x, y, z, yaw, pitch, roll, newcome=False):
     marker.id = id
     marker.type = marker.CUBE
     marker.action = marker.DELETE if newcome else marker.ADD
-    marker.scale.x = 0.06
-    marker.scale.y = 0.06
+    marker.scale.x = 0.08
+    marker.scale.y = 0.08
     marker.scale.z = 0.01
     marker.color.a = 1.0
     marker.color.r = 1.0
@@ -42,13 +42,18 @@ markers = []
 #markers.append(buildMarker(40, 0, 0, 0, 0, 0, 0, True))
 #markers.append(buildMarker(0, 0.00, 0.00, 0.00, -1.14, -1.79, 1.66))
 #markers.append(buildMarker(40, 0.33, 0.05, -0.01, -1.44, -1.74, 1.53))
-markers.append(buildMarker(24, 0, 0, 0, 0, 0, 0))
-markers.append(buildMarker(53, 0, 0, 0, 0, 0, 0, True))
-markers.append(buildMarker(29, 0, 0, 0, 0, 0, 0, True))
-markers.append(buildMarker(71, 0, 0, 0, 0, 0, 0, True))
-markers.append(buildMarker(52, 0, 0, 0, 0, 0, 0, True))
-markers.append(buildMarker(70, 0, 0, 0, 0, 0, 0, True))
-markers.append(buildMarker(27, 0, 0, 0, 0, 0, 0, True))
+markers.append(buildMarker(0, 0, 0, 0, 0, 0, 0))
+markers.append(buildMarker(1, 0, 0, 0, 0, 0, 0, True))
+markers.append(buildMarker(2, 0, 0, 0, 0, 0, 0, True))
+markers.append(buildMarker(3, 0, 0, 0, 0, 0, 0, True))
+markers.append(buildMarker(4, 0, 0, 0, 0, 0, 0, True))
+markers.append(buildMarker(5, 0, 0, 0, 0, 0, 0, True))
+markers.append(buildMarker(6, 0, 0, 0, 0, 0, 0, True))
+markers.append(buildMarker(7, 0, 0, 0, 0, 0, 0, True))
+markers.append(buildMarker(8, 0, 0, 0, 0, 0, 0, True))
+markers.append(buildMarker(9, 0, 0, 0, 0, 0, 0, True))
+markers.append(buildMarker(10, 0, 0, 0, 0, 0, 0, True))
+markers.append(buildMarker(11, 0, 0, 0, 0, 0, 0, True))
 
 markerArr.markers = markers
 

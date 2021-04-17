@@ -136,8 +136,9 @@ def callback(data):
             mat4_cw[0:3, 3:4] = np.matmul(rmat.T, -tvec)
             publishTransform(mat4_cw)
             
+            tagOutFile = open('/tmp/tag.txt', 'w')
             markers_out = []
-            print("({}, {}, {}, {}, {}, {}, {})".format('id', 'x', 'y', 'z', 'yaw', 'pitch', 'roll'))
+            tagOutFile.write("({}, {}, {}, {}, {}, {}, {})\n".format('id', 'x', 'y', 'z', 'yaw', 'pitch', 'roll'))
             for i in range(len(tag_ids)):
                 objPnts = getObjShape(tag_ids[i])
                 if objPnts is None:
@@ -155,7 +156,8 @@ def callback(data):
                 q = mrk.pose.orientation
                 p = mrk.pose.position
                 euler = tf.transformations.euler_from_quaternion((q.x, q.y, q.z, q.w), axes='rzyz')
-                print("({}, {}, {}, {}, {}, {}, {})".format(mrk.id, p.x, p.y, p.z, euler[0], euler[1], euler[2]))
+                tagOutFile.write("({}, {}, {}, {}, {}, {}, {})\n".format(mrk.id, p.x, p.y, p.z, euler[0], euler[1], euler[2]))
+            tagOutFile.close()
             markerArr = visualization_msgs.msg.MarkerArray()
             markerArr.markers = markers_out
             markerArr_pub.publish(markerArr)
